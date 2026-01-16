@@ -1,2 +1,6 @@
 # Created by venv; see https://docs.python.org/3/library/venv.html
-
+*.doc
+*.docx
+task
+test_data
+pyvenv.cfv
