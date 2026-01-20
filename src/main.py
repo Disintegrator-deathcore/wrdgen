@@ -88,24 +88,35 @@ class MainApp():
         result_parts = []
         gender = None
         
-        # Определяем род по последней части (чаще всего это фамилия)
-        if len(parts) >= 1:
-            gender = self.determine_gender(parts[-1])
-        
+        # Определяем род по последней части (чаще всего это отчество)
+        gender = self.determine_gender(parts[-1])
+        excepted_part = self.is_excepted(parts[0])
+            
         for part in parts:
             try:
-                # Попытка разбора слова
-                parsed = self.morph.parse(part)
-                if parsed:
-                    first_variant = parsed[0]
-                    if first_variant.inflect({'gent'}):
-                        # Трансформируем в родительный падеж
-                        result_parts.append(first_variant.inflect({'gent'}).word.capitalize())
+                if not excepted_part:
+                    # Попытка разбора слова
+                    parsed = self.morph.parse(part)
+                    if parsed:
+                        first_variant = parsed[0]
+                        if first_variant.inflect({'gent'}):
+                            # Трансформируем в родительный падеж
+                            result_parts.append(first_variant.inflect({'gent'}).word.capitalize())
+                        else:
+                            # Если не удалось трансформировать, оставляем как есть
+                            result_parts.append(part)
                     else:
-                        # Если не удалось трансформировать, оставляем как есть
                         result_parts.append(part)
                 else:
-                    result_parts.append(part)
+                    if gender == "femn":
+                        print(part)
+                        result_parts.append(part[:-1] + "ой")
+                    else:
+                        print(part)
+                        result_parts.append(part + "а")
+                        
+                    excepted_part = False
+
             except Exception as e:
                 print(f"Ошибка при обработке имени '{part}': {e}")
                 result_parts.append(part)
@@ -113,6 +124,14 @@ class MainApp():
         # Устанавливаем род в target_text
         self.target_text["gender"] = gender
         return ' '.join(result_parts)
+
+    def is_excepted(self, cur_form):
+        norm_form = self.morph.parse(cur_form)[0].normal_form.capitalize()
+        
+        if norm_form == cur_form and norm_form != None:
+            return False
+        else:
+            return True
 
     def determine_gender(self, word):
         # Определяет род слова, используя pymorphy3.
