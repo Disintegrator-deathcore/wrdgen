@@ -2,6 +2,7 @@
 *.doc
 *.docx
 *.xlsx
+*.bat
 task
 test_data
 pyvenv.cfv

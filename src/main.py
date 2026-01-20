@@ -1,12 +1,12 @@
 from docx import Document
 from python_docx_replace import docx_replace, docx_get_keys
-import pymorphy3
+from pymorphy3 import MorphAnalyzer
 from openpyxl import load_workbook
 
 
 class MainApp():
     def __init__(self, doc_name="./test_data/template.docx"):
-        self.morph = pymorphy3.MorphAnalyzer()
+        self.morph = MorphAnalyzer()
         self.target_text = {
             "learning_first": "",
             "curs_num": "",
@@ -109,10 +109,8 @@ class MainApp():
                         result_parts.append(part)
                 else:
                     if gender == "femn":
-                        print(part)
                         result_parts.append(part[:-1] + "ой")
                     else:
-                        print(part)
                         result_parts.append(part + "а")
                         
                     excepted_part = False
