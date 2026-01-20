@@ -62,9 +62,7 @@ class MainApp():
     
     # Преобразование одного слова
     def learning_remorph(self, word):
-        """
-        Склоняет отдельное слово, учитывая установленное значение пола.
-        """
+        # Склоняет отдельное слово, учитывая установленное значение пола.
         try:
             # Пробуем разобрать слово
             parsed = self.morph.parse(word)
@@ -85,9 +83,7 @@ class MainApp():
 
     # Преобразование ФИО в дательный падеж
     def fn_remorph(self, full_name):
-        """
-        Преобразует ФИО в родительный падеж, предварительно определяя род.
-        """
+        # Преобразует ФИО в родительный падеж, предварительно определяя род.
         parts = full_name.split()
         result_parts = []
         gender = None
@@ -119,10 +115,8 @@ class MainApp():
         return ' '.join(result_parts)
 
     def determine_gender(self, word):
-        """
-        Определяет род слова, используя pymorphy3.
-        Возвращает 'masc' или 'femn'.
-        """
+        # Определяет род слова, используя pymorphy3.
+        # Возвращает 'masc' или 'femn'.
         parses = self.morph.parse(word)
         if parses:
             first_parse = parses[0]
