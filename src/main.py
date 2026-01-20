@@ -62,29 +62,75 @@ class MainApp():
     
     # Преобразование одного слова
     def learning_remorph(self, word):
+        """
+        Склоняет отдельное слово, учитывая установленное значение пола.
+        """
         try:
-            parse_result = self.morph.parse(word)[0]
-            gender_tag = {"femn" if self.target_text["gender"] == "femn" else "masc"}
-            new_word = parse_result.inflect(gender_tag).word.capitalize()
-            return new_word
+            # Пробуем разобрать слово
+            parsed = self.morph.parse(word)
+            if parsed:
+                first_variant = parsed[0]
+                gender_tag = {'femn' if self.target_text.get("gender") == "femn" else 'masc'}
+                if first_variant.inflect(gender_tag):
+                    # Склоняем слово в нужный род
+                    return first_variant.inflect(gender_tag).word.capitalize()
+                else:
+                    # Если не удалось изменить слово, возвращаем оригинал
+                    return word
+            else:
+                return word
         except Exception as e:
             print(f"Ошибка при обработке слова '{word}': {e}")
             return word
-    
+
     # Преобразование ФИО в дательный падеж
     def fn_remorph(self, full_name):
+        """
+        Преобразует ФИО в родительный падеж, предварительно определяя род.
+        """
         parts = full_name.split()
         result_parts = []
+        gender = None
+        
+        # Определяем род по последней части (чаще всего это фамилия)
+        if len(parts) >= 1:
+            gender = self.determine_gender(parts[-1])
+        
         for part in parts:
             try:
-                # Парсим и превращаем в родительный падеж
-                inflected_part = self.morph.parse(part)[0].inflect({'gent'}).word.capitalize()
-                result_parts.append(inflected_part)
+                # Попытка разбора слова
+                parsed = self.morph.parse(part)
+                if parsed:
+                    first_variant = parsed[0]
+                    if first_variant.inflect({'gent'}):
+                        # Трансформируем в родительный падеж
+                        result_parts.append(first_variant.inflect({'gent'}).word.capitalize())
+                    else:
+                        # Если не удалось трансформировать, оставляем как есть
+                        result_parts.append(part)
+                else:
+                    result_parts.append(part)
             except Exception as e:
                 print(f"Ошибка при обработке имени '{part}': {e}")
                 result_parts.append(part)
+        
+        # Устанавливаем род в target_text
+        self.target_text["gender"] = gender
         return ' '.join(result_parts)
-    
+
+    def determine_gender(self, word):
+        """
+        Определяет род слова, используя pymorphy3.
+        Возвращает 'masc' или 'femn'.
+        """
+        parses = self.morph.parse(word)
+        if parses:
+            first_parse = parses[0]
+            gender = first_parse.tag.gender
+            if gender in ['masc', 'femn']:
+                return gender
+        return None
+
     # Функция обновления данных в словаре из excel
     def data_update(self, data_file="test_data/list_students.xlsx"):
         workbook = load_workbook(filename=data_file, read_only=True)
