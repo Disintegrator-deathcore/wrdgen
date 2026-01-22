@@ -49,7 +49,7 @@ class MainApp():
             docx_replace(template, **self.target_text)
             
             # Сохраняем изменённый документ с новым названием
-            template.save(f"results/{self.target_text['name_ro'].split()[0]}.docx")
+            template.save(f"results/{self.target_text['name_ro'].split()[0]} {self.target_text['group_name']}.docx")
             
             # Закрываем документ (хотя в python-docx явное закрытие не требуется, но всё равно освобождаем ресурс)
             del template
