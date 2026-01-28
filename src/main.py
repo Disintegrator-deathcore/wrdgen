@@ -13,6 +13,7 @@ class MainApp():
             "curs_num": "",
             "group_name": "",
             "name_ro": "",
+            "practice_place": "",
             "practice_start_fd": "",
             "practice_end_fd": "",
             "learning_sec": "",
@@ -40,6 +41,7 @@ class MainApp():
         for student in students:
             self.target_text["name_im"] = student
             self.target_text["name_ro"] = self.remorph_word(student)
+            self.target_text["practice_place"] = students[student]
             self.target_text["learning_first"] = self.remorph_word(self.target_text["learning_first"])
             self.target_text["learning_sec"] = self.remorph_word(self.target_text["learning_sec"])
             
@@ -150,31 +152,44 @@ class MainApp():
         
         # Забираем конкретные значения из определённых ячеек
         self.target_text.update({
-            "learning_first": sheet["B1"].value,
-            "curs_num": sheet["C1"].value,
-            "group_name": sheet["D1"].value,
-            "practice_start_fd": sheet["E1"].value,
-            "practice_end_fd": sheet["F1"].value,
-            "learning_sec": sheet["G1"].value,
-            "order_num": sheet["H1"].value,
-            "order_date": sheet["I1"].value,
-            "P_num": sheet["J1"].value,
-            "specialization": sheet["K1"].value,
-            "PM_name": sheet["L1"].value,
-            "practice_start_day": sheet["M1"].value,
-            "practice_start_month": sheet["N1"].value,
-            "practice_start_year": sheet["O1"].value,
-            "practice_end_day": sheet["P1"].value,
-            "practice_end_month": sheet["Q1"].value,
-            "hours": sheet["R1"].value,
-            "end_hour": sheet["S1"].value
+            "learning_first": sheet["C1"].value,
+            "curs_num": sheet["D1"].value,
+            "group_name": sheet["E1"].value,
+            "practice_start_fd": sheet["F1"].value,
+            "practice_end_fd": sheet["G1"].value,
+            "learning_sec": sheet["H1"].value,
+            "order_num": sheet["I1"].value,
+            "order_date": sheet["J1"].value,
+            "P_num": sheet["K1"].value,
+            "specialization": sheet["L1"].value,
+            "PM_name": sheet["M1"].value,
+            "practice_start_day": sheet["N1"].value,
+            "practice_start_month": sheet["O1"].value,
+            "practice_start_year": sheet["P1"].value,
+            "practice_end_day": sheet["Q1"].value,
+            "practice_end_month": sheet["R1"].value,
+            "hours": sheet["S1"].value,
+            "end_hour": sheet["T1"].value
         })
         
     # Функция обновления списка студентов из excel
     def students_update(self, data_file="test_data/list_students.xlsx"):
         workbook = load_workbook(filename=data_file, read_only=True)
         sheet = workbook.active
-        return [row[0].strip() for row in sheet.iter_rows(min_row=1, max_col=1, values_only=True) if row[0]]
+    
+        # Словарь для хранения пар {имя студента : место практики}
+        result_dict = {}
+    
+        # Проходим по каждой строке листа начиная с первой строки
+        for row in sheet.iter_rows(min_row=1, min_col=1, max_col=2, values_only=True):
+            if row[0]:  # Проверяем наличие имени студента
+                student_name = str(row[0]).strip()
+                practice_place = str(row[1]).strip() if row[1] else None
+            
+                # Добавляем пару {студент: практика} в словарь
+                result_dict[student_name] = practice_place
+        
+        return result_dict
     
     # Функция сохранения документа
     def save_doc(self, doc):
