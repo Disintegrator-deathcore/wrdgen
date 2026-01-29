@@ -6,7 +6,8 @@ import os
 
 
 class MainApp():
-    def __init__(self, doc_name="./test_data/template.docx"):
+    def __init__(self, doc_name="./test_data/template.docx",
+                 data_file="test_data/list_students.xlsx"):
         self.morph = MorphAnalyzer()
         self.target_text = {
             "learning_first": "",
@@ -34,6 +35,7 @@ class MainApp():
             "gender": ""
         }
         self.doc_name = doc_name
+        self.data_file = data_file
         self.data_update()
         self.replace_text(self.students_update())
             
@@ -173,8 +175,8 @@ class MainApp():
         })
         
     # Функция обновления списка студентов из excel
-    def students_update(self, data_file="test_data/list_students.xlsx"):
-        workbook = load_workbook(filename=data_file, read_only=True)
+    def students_update(self):
+        workbook = load_workbook(filename=self.data_file, read_only=True)
         sheet = workbook.active
     
         # Словарь для хранения пар {имя студента : место практики}
@@ -201,7 +203,17 @@ class MainApp():
 
     
 if __name__ == "__main__":
+    import sys
+    from openpyxl.utils.exceptions import InvalidFileException
+    
+    
     try:
-        MainApp()
+        MainApp(sys.argv[1], sys.argv[2]) if len(sys.argv) > 1 else MainApp()
     except KeyboardInterrupt:
         print("Программа завершена пользователем, некоторые документы могут быть сохранены некорректно")
+    except InvalidFileException:
+        print(f"первый файл \"{sys.argv[1]}\" передан в неверном формате")
+    except ValueError:
+        print(f"второй файл \"{sys.argv[2]}\" передан в неверном формате")
+    except Exception as e:
+        print(f"Непредвиденная ошибка: {e}")
