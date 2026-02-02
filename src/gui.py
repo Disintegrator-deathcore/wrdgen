@@ -98,7 +98,7 @@ class MyApp(toga.App):
         self.data_file_txtInp.value = task.result()
         self.data = task.result()
         
-    """ Доработать функцию """
+    """ Доработать  функцию """
     def info(self):
         my_info = toga.InfoDialog("Забыли выбрать", "Вы забыли выбрать файл")
         self.main_window.dialog(my_info)
