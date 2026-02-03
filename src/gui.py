@@ -11,7 +11,7 @@ class MyApp(toga.App):
         self.template = ""
         self.data = ""
         
-        self.main_window = toga.MainWindow()
+        self.main_window = toga.MainWindow(resizable=False)
         self.main_window.size = (550, 300)
         self.main_window.content = toga.Box()
         
@@ -55,6 +55,9 @@ class MyApp(toga.App):
         self.start_btn.style.font_family = "Times New Roman"
         self.start_btn.style.font_size = 16
         
+        self.load_indc = toga.ActivityIndicator()
+        self.load_indc.style.margin = (135, 200, -200, -275)
+        
         self.buttons_box.add(
             self.select_template_btn,
             self.select_data_btn
@@ -68,7 +71,8 @@ class MyApp(toga.App):
         self.main_window.content.add(
             self.labels_box,
             self.buttons_box,
-            self.start_btn
+            self.start_btn,
+            self.load_indc
         )
         
         self.main_window.show()
@@ -77,6 +81,7 @@ class MyApp(toga.App):
         """Обработчик нажатия кнопки"""
         if self.template != "":
             if self.data != "":
+                self.load_indc.start()
                 thread = threading.Thread(target=self.run_long_task)
                 thread.start()
             else:
@@ -113,6 +118,7 @@ class MyApp(toga.App):
     def run_long_task(self):
         """Функция, содержащая длительную задачу."""
         MainApp(self.template, self.data)
+        self.load_indc.stop()
 
 
 if __name__ == '__main__':
