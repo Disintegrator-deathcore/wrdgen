@@ -75,8 +75,16 @@ class MyApp(toga.App):
         
     def start_script(self, widget):
         """Обработчик нажатия кнопки"""
-        thread = threading.Thread(target=self.run_long_task)
-        thread.start()
+        if self.template != "":
+            if self.data != "":
+                thread = threading.Thread(target=self.run_long_task)
+                thread.start()
+            else:
+                self.info()
+        else:
+            self.info()
+            print("Функция выполнена")
+        
     
     def select_template(self, widget):
         cur_template = toga.OpenFileDialog("Выберите файл", str(os.getcwd()), ["docx", "doc"], False)
@@ -98,23 +106,13 @@ class MyApp(toga.App):
         self.data_file_txtInp.value = task.result()
         self.data = task.result()
         
-    """ Доработать  функцию """
-    def info(self):
+    def info(self, **kwargs):
         my_info = toga.InfoDialog("Забыли выбрать", "Вы забыли выбрать файл")
-        self.main_window.dialog(my_info)
-        print(f"my_info: {my_info}")
-    """ Доработать функцию """
+        task = asyncio.create_task(self.main_window.dialog(my_info))
     
     def run_long_task(self):
         """Функция, содержащая длительную задачу."""
-        if self.template != "":
-            if self.data != "":
-                MainApp(self.template, self.data)
-            else:
-                self.info()
-        else:
-            self.info()
-            print("Функция выполнена")
+        MainApp(self.template, self.data)
 
 
 if __name__ == '__main__':
