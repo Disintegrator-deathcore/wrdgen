@@ -1,5 +1,5 @@
 from docx import Document
-from python_docx_replace import docx_replace, docx_get_keys
+from python_docx_replace import docx_replace
 from pymorphy3 import MorphAnalyzer
 from openpyxl import load_workbook
 import os
@@ -38,7 +38,8 @@ class MainApp():
         self.data_file = data_file
         self.data_update()
         self.replace_text(self.students_update())
-            
+    
+    # Основная функция замены текста
     def replace_text(self, students):
         for student in students:
             self.target_text["name_im"] = student
@@ -64,6 +65,15 @@ class MainApp():
             return self.fn_remorph(word)
         else:
             return self.learning_remorph(word)
+
+    # Преобразование окончания слова час в зависимости от количества часов
+    def remorph_hours(self, hours):
+        if int(hours) % 10 == 1 and int(hours) % 100 != 11:
+                return ""
+        elif int(hours) % 10 in [2, 3, 4]:
+                return "a"
+        else:
+                return "ов"
     
     # Преобразование одного слова
     def learning_remorph(self, word):
@@ -147,10 +157,43 @@ class MainApp():
                 return gender
         return None
 
+    # Фнукция заполнения словаря practice_dates
+    def upd_practice_dates(self, sheet):
+        splited_start_date = sheet["F1"].value.split(".")
+        splited_end_date = sheet["G1"].value.split(".")
+        
+        months = {
+            "01": "января",
+            "02": "февраля",
+            "03": "марта",
+            "04": "апреля",
+            "05": "мая",
+            "06": "июня",
+            "07": "июля",
+            "08": "августа",
+            "09": "сентября",
+            "10": "октября",
+            "11": "ноября",
+            "12": "декабря",
+        }
+        
+        practice_dates = {
+            "start_day":    splited_start_date[0],
+            "start_month":  months[splited_start_date[1]],
+            "start_year":   splited_start_date[2],
+            "end_day":      splited_end_date[0],
+            "end_month":    months[splited_end_date[1]],
+            "end_year":     splited_end_date[2]
+        }
+        
+        return practice_dates
+
     # Функция обновления данных в словаре из excel
     def data_update(self, data_file="test_data/list_students.xlsx"):
         workbook = load_workbook(filename=data_file, read_only=True)
         sheet = workbook.active
+        
+        practice_dates = self.upd_practice_dates(sheet)
         
         # Забираем конкретные значения из определённых ячеек
         self.target_text.update({
@@ -165,15 +208,17 @@ class MainApp():
             "P_num": sheet["K1"].value,
             "specialization": sheet["L1"].value,
             "PM_name": sheet["M1"].value,
-            "practice_start_day": sheet["N1"].value,
-            "practice_start_month": sheet["O1"].value,
-            "practice_start_year": sheet["P1"].value,
-            "practice_end_day": sheet["Q1"].value,
-            "practice_end_month": sheet["R1"].value,
+            "practice_start_day": practice_dates["start_day"],
+            "practice_start_month": practice_dates["start_month"],
+            "practice_start_year": practice_dates["start_year"][-1],
+            "practice_end_day": practice_dates["end_day"],
+            "practice_end_month": practice_dates["end_month"],
             "hours": sheet["S1"].value,
-            "end_hour": sheet["T1"].value
+            "end_hour": self.remorph_hours(sheet["N1"].value)
         })
         
+        workbook.close()
+
     # Функция обновления списка студентов из excel
     def students_update(self):
         workbook = load_workbook(filename=self.data_file, read_only=True)
@@ -205,7 +250,6 @@ class MainApp():
 if __name__ == "__main__":
     import sys
     from openpyxl.utils.exceptions import InvalidFileException
-    
     
     try:
         MainApp(sys.argv[1], sys.argv[2]) if len(sys.argv) > 1 else MainApp()
