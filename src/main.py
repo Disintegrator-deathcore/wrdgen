@@ -213,7 +213,7 @@ class MainApp():
             "practice_start_year": practice_dates["start_year"][-1],
             "practice_end_day": practice_dates["end_day"],
             "practice_end_month": practice_dates["end_month"],
-            "hours": sheet["S1"].value,
+            "hours": sheet["N1"].value,
             "end_hour": self.remorph_hours(sheet["N1"].value)
         })
         
