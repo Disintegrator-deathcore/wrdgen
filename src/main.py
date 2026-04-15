@@ -240,11 +240,15 @@ class MainApp():
     
     # Функция сохранения документа
     def save_doc(self, doc):
+        file_name = self.target_text['name_im'].split()[0] +\
+                    " " + self.target_text['name_im'].split()[1][0] +\
+                    self.target_text['name_im'].split()[2][0] +\
+                    " " + self.target_text['group_name']
         try:
-            doc.save(f"results/{self.target_text['name_ro'].split()[0]} {self.target_text['group_name']}.docx")
+            doc.save(f"results/{file_name}.docx")
         except FileNotFoundError:
             os.mkdir("results")
-            doc.save(f"results/{self.target_text['name_ro'].split()[0]} {self.target_text['group_name']}.docx")
+            doc.save(f"results/{file_name}.docx")
 
     
 if __name__ == "__main__":
